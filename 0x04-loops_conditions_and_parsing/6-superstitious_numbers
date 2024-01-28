@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # Loops from 1 to 10 and displays:
 
-
 count=1
 
 while [ $count -le 20 ]
