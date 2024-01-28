@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+#display time
 
 hour=0
 
