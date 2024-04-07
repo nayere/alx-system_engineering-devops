@@ -41,7 +41,7 @@ frontend jayeeworks-tech-frontend
 backend jayeeworks-tech-backend
     balance roundrobin
     server 499935-web-01 54.236.8.23:80 check
-    server 499935-web-01 54.87.250.74:80 check
+    server 499935-web-02 54.87.250.74:80 check
 "
 
 # shellcheck disable=SC2154
