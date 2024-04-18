@@ -1,8 +1,19 @@
 #!/usr/bin/env bash
-# Fixes server bug
-chmod 644 /etc/nginx/nginx.conf
-sed -Ei 's/\s*#?\s*user .*/user nginx;/' /etc/nginx/nginx.conf
-sed -Ei 's/(listen (\[::\]:)?80) /\180 /' /etc/nginx/sites-enabled/default
-pkill apache2
-# restart
-su nginx -s /bin/bash -c 'service nginx restart'
+# Define variables
+nginx_user="nginx"
+nginx_conf="/etc/nginx/nginx.conf"
+
+# Update nginx user in the nginx configuration file
+sed -i "s/user .*;/user $nginx_user;/" "$nginx_conf"
+
+# Update the listening port to 8080 in the nginx configuration file
+sed -i "s/listen 80;/listen 8080;/" "$nginx_conf"
+
+# Check if the user nginx exists, if not, create the user
+if ! id -u "$nginx_user" &>/dev/null; then
+    useradd -r -s /sbin/nologin "$nginx_user"
+fi
+
+# Start Nginx as the nginx user
+# - In the case of a container, you may just start the service or restart it.
+service nginx restart
