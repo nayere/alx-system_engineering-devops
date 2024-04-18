@@ -1,19 +1,8 @@
 #!/usr/bin/env bash
-# Define variables
-nginx_user="nginx"
-nginx_conf="/etc/nginx/nginx.conf"
-
-# Update nginx user in the nginx configuration file
-sed -i "s/user .*;/user $nginx_user;/" "$nginx_conf"
-
-# Update the listening port to 8080 in the nginx configuration file
-sed -i "s/listen 80;/listen 8080;/" "$nginx_conf"
-
-# Check if the user nginx exists, if not, create the user
-if ! id -u "$nginx_user" &>/dev/null; then
-    useradd -r -s /sbin/nologin "$nginx_user"
-fi
-
-# Start Nginx as the nginx user
-# - In the case of a container, you may just start the service or restart it.
-service nginx restart
+# start service nginx with user nginx
+sudo service nginx stop
+chown nginx:nginx /etc/nginx/nginx.conf
+chmod 644 /etc/nginx/nginx.conf
+pkill apache2
+sed -i "s/80 default_/8080 default_/" /etc/nginx/sites-enabled/default
+sudo -u nginx service nginx start
