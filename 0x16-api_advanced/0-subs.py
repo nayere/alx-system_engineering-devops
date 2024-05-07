@@ -1,39 +1,41 @@
-#!/usr/bin/python3
-"""
-Script that queries subscribers on a given Reddit subreddit.
-"""
+#!/bin/bash
 
-import requests
-
-def number_of_subscribers(subreddit):
+# Function to get the number of subscribers for a given subreddit
+number_of_subscribers() {
+    # Define the subreddit passed as argument
+    local subreddit="$1"
+    
     # Define the URL for the API endpoint
-    url = f'https://www.reddit.com/r/{subreddit}/about.json'
+    local url="https://www.reddit.com/r/${subreddit}/about.json"
     
-    # Define a custom User-Agent header
-    headers = {
-        'User-Agent': 'MyRedditApp/0.1 by MyRedditUser'  # You can use a descriptive identifier
-    }
+    # Set a custom User-Agent header
+    local user_agent="MyRedditApp/0.1 by MyRedditUser"
     
-    # Send a GET request to the URL
-    response = requests.get(url, headers=headers)
-    
-    # Check if the request was successful (HTTP status code 200)
-    if response.status_code == 200:
-        # Parse the JSON response
-        data = response.json()
-        # Return the number of subscribers from the JSON data
-        return data['data']['subscribers']
-    else:
-        # If the request was not successful, return 0
-        return 0
+    # Send a GET request to the URL using curl
+    response=$(curl -s -A "$user_agent" "$url")
 
-if __name__ == '__main__':
-    import sys
-    
-    # Testing the function
-    if len(sys.argv) < 2:
-        print("Please pass an argument for the subreddit to search.")
-    else:
-        subreddit = sys.argv[1]
-        subscribers = number_of_subscribers(subreddit)
-        print(f"{subscribers}")
+    # Check if the request was successful by checking the HTTP status code
+    http_status=$(echo "$response" | jq -r '.message')
+
+    # If the request was successful (http_status is null or empty)
+    if [ "$http_status" = "Not Found" ]; then
+        # The subreddit is invalid, return 0
+        echo 0
+    else
+        # Extract the number of subscribers from the JSON response using jq
+        subscribers=$(echo "$response" | jq -r '.data.subscribers')
+
+        # Return the number of subscribers
+        echo "$subscribers"
+    fi
+}
+
+# Main script execution
+if [ "$#" -lt 1 ]; then
+    echo "Please pass an argument for the subreddit to search."
+else
+    # Call the function and print the number of subscribers
+    subreddit="$1"
+    subscribers=$(number_of_subscribers "$subreddit")
+    echo "$subscribers"
+fi
